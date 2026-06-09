@@ -33,7 +33,8 @@ pipeline {
             steps {
                 sh '''
                     echo "Analyse statique du code (SAST)..."
-                    "$SEMGREP" scan --config auto --metrics off \
+                    # Config epinglee (p/default) + metrics off : pas d'envoi de telemetrie a Semgrep
+                    "$SEMGREP" scan --config "p/default" --metrics off \
                         --sarif-output semgrep-sast.sarif \
                         --json-output  semgrep-sast.json \
                         --text-output  semgrep-sast.txt || true
@@ -45,10 +46,21 @@ pipeline {
         stage('Demarrage Juice Shop') {
             steps {
                 sh '''
-                    export PATH=$NODE_BIN:$PATH
-                    export JENKINS_NODE_COOKIE=dontKillMe   # sinon Jenkins tue le serveur a la fin du stage
-                    PORT=4000 npm start > juiceshop.log 2>&1 &
-                    sleep 25
+                    docker rm -f juiceshop-test >/dev/null 2>&1 || true
+                    # Image epinglee par digest (supply-chain) ; publiee sur loopback uniquement
+                    # car l'appli est volontairement vulnerable -> joignable par ZAP, pas par le reseau
+                    docker run -d --name juiceshop-test -p 127.0.0.1:4000:3000 \
+                        bkimminich/juice-shop@sha256:25fd268112350ae9e0ddc7878371f9f12f5b0b546c7bf934d6599aa8e724418f
+
+                    echo "Attente du demarrage de Juice Shop..."
+                    for i in $(seq 1 40); do
+                        if curl -sf http://localhost:4000 >/dev/null 2>&1; then
+                            echo "Juice Shop est pret."
+                            exit 0
+                        fi
+                        sleep 3
+                    done
+                    echo "ATTENTION : Juice Shop n'a pas repondu a temps."
                 '''
             }
         }
@@ -75,7 +87,7 @@ pipeline {
     post {
         always {
             echo "Arret de Juice Shop..."
-            sh 'pkill -f "node build/app" || true'
+            sh 'docker rm -f juiceshop-test >/dev/null 2>&1 || true'
         }
 
         success {
