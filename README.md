@@ -19,7 +19,7 @@
 > ([@shehackspurple](https://twitter.com/shehackspurple)) —
 > [Actually the most bug-free vulnerable application in existence!](https://youtu.be/TXAztSpYpvE?t=26m35s)
 > ([@vanderaj](https://twitter.com/vanderaj)) —
-> [First you 😂😂then you ](https://twitter.com/kramse/status/1073168529405472768)
+> [First you 😂😂then you 😂😂](https://twitter.com/kramse/status/1073168529405472768)
 > ([@kramse](https://twitter.com/kramse)) —
 > [But this doesn't have anything to do with juice.](https://twitter.com/coderPatros/status/1199268774626488320)
 > ([@coderPatros' wife](https://twitter.com/coderPatros))
